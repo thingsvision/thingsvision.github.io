@@ -24,7 +24,8 @@ requirements = [
                 'scikit-learn==1.1.*',
                 'scipy==1.8.1',
                 'h5py==3.7.0',
-                'CLIP'
+                'CLIP', 
+		# 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
                 ]
 
 setuptools.setup(
@@ -46,6 +47,7 @@ setuptools.setup(
                     "License :: OSI Approved :: MIT License",
                     "Operating System :: OS Independent",
                 ],
+                entry_points={"console_scripts": ["thingsvision = bin.thingsvision:main"]},
                 python_requires='>=3.8',
                 dependency_links=['git+https://github.com/openai/CLIP.git']
 )
