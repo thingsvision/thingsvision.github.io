@@ -1,11 +1,10 @@
 from dataclasses import field
-from typing import Any, Callable, Iterator, List, Union
+from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
+import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
-
-import torch
 
 from .base import BaseExtractor
 
@@ -40,8 +39,9 @@ class PyTorchExtractor(BaseExtractor):
         batches: Iterator,
         module_name: str,
         flatten_acts: bool,
-        output_dir: str = None,
-        step_size: int = None,
+        output_type: str = "ndarray",
+        output_dir: Optional[str] = None,
+        step_size: Optional[int] = None,
     ):
         self.model = self.model.to(self.device)
         self.activations = {}
@@ -50,6 +50,7 @@ class PyTorchExtractor(BaseExtractor):
             batches=batches,
             module_name=module_name,
             flatten_acts=flatten_acts,
+            output_type=output_type,
             output_dir=output_dir,
             step_size=step_size,
         )
@@ -58,7 +59,7 @@ class PyTorchExtractor(BaseExtractor):
         return features
 
     def get_activation(self, name: str) -> Callable:
-        """Store copy of hidden unit activations at each layer of model."""
+        """Store copy of activations for a specific layer of the model."""
 
         def hook(model, input, output) -> None:
             # store copy of tensor rather than tensor itself
@@ -101,7 +102,6 @@ class PyTorchExtractor(BaseExtractor):
                 act = self.flatten_acts(act, batch, module_name)
             else:
                 act = self.flatten_acts(act)
-        act = self._to_numpy(act)
         return act
 
     def forward(
@@ -118,18 +118,6 @@ class PyTorchExtractor(BaseExtractor):
     ) -> TensorType["b", "p"]:
         """Default flattening of activations."""
         return act.view(act.size(0), -1)
-
-    @staticmethod
-    def _to_numpy(
-        act: Union[
-            TensorType["b", "num_maps", "h_prime", "w_prime"],
-            TensorType["b", "t", "d"],
-            TensorType["b", "p"],
-            TensorType["b", "d"],
-        ]
-    ) -> Array:
-        """Move activation to CPU and convert torch.Tensor to np.ndarray."""
-        return act.cpu().numpy()
 
     def show_model(self) -> str:
         return self.model

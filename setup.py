@@ -21,6 +21,8 @@ requirements = [
     "timm==0.6.*",
     "torchtyping", 
     "regex",
+    "flake8",
+    "pyflakes",
     "scikit-image==0.19.3",
     "scikit-learn==1.1.*",
     "scipy==1.8.1",
