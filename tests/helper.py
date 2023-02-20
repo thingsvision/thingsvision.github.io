@@ -92,11 +92,12 @@ MODEL_AND_MODULE_NAMES = {
     'swav-rn50': SSL_RN50_DEFAULT_CONFIG,
     'pirl-rn50': SSL_RN50_DEFAULT_CONFIG,
     'barlowtwins-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG
+    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
+    'dino-rn50' : SSL_RN50_DEFAULT_CONFIG
 }
 
 
-FILE_FORMATS = ["hdf5", "npy", "mat", "txt"]
+FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
 DISTANCES = ["correlation", "cosine", "euclidean", "gaussian"]
 
 BATCH_SIZE = 16

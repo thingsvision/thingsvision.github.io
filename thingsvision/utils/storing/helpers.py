@@ -5,10 +5,15 @@ import h5py
 import numpy as np
 import scipy
 import scipy.io
+import torch
+import warnings
+
+from typing import Union
 
 Array = np.ndarray
+Tensor = torch.Tensor 
 
-FILE_FORMATS = ["hdf5", "npy", "mat", "txt"]
+FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
 EXTENSIONS = r"(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$"
 
 
@@ -18,7 +23,7 @@ def rm_suffix(img_name: str) -> str:
 
 def store_features(
     root: str,
-    features: Array,
+    features: Union[Array,Tensor],
     file_format: str,
 ) -> None:
     """Save feature matrix to disk in pre-defined file format."""
@@ -31,6 +36,8 @@ def store_features(
     if file_format == "npy":
         with open(os.path.join(root, "features.npy"), "wb") as f:
             np.save(f, features)
+    elif file_format == "pt":
+        torch.save(features, os.path.join(root, "features.pt"))
     elif file_format == "mat":
         try:
             with open(os.path.join(root, "file_names.txt"), "r") as f:
@@ -42,10 +49,10 @@ def store_features(
         except FileNotFoundError:
             scipy.io.savemat(os.path.join(root, "features.mat"), {"features": features})
     elif file_format == "hdf5":
-        h5f = h5py.File(os.path.join(root, "features.h5"), "w")
+        h5f = h5py.File(os.path.join(root, "features.hdf5"), "w")
         h5f.create_dataset("features", data=features)
         h5f.close()
-    else:
+    else: # txt
         np.savetxt(os.path.join(root, "features.txt"), features)
     print("...Features successfully saved to disk.\n")
 
@@ -65,13 +72,15 @@ def split_features(
             file_names = None
     splits = np.linspace(0, len(features), n_splits, dtype=int)
     if file_format == "hdf5":
-        h5f = h5py.File(os.path.join(root, "features.h5"), "w")
+        h5f = h5py.File(os.path.join(root, "features.hdf5"), "w")
 
     for i in range(1, len(splits)):
         feature_split = features[splits[i - 1] : splits[i]]
         if file_format == "npy":
             with open(os.path.join(root, f"features_{i:02d}.npy"), "wb") as f:
                 np.save(f, feature_split)
+        elif file_format == "pt":
+            torch.save(feature_split, os.path.join(root, f"features_{i:02d}.pt"))
         elif file_format == "mat":
             if file_names:
                 file_name_split = file_names[splits[i - 1] : splits[i]]
@@ -96,7 +105,7 @@ def split_features(
 
 
 def save_features(
-    features: Array,
+    features: Union[Array, Tensor],
     out_path: str,
     file_format: str,
     n_splits: int = 10,
@@ -104,12 +113,19 @@ def save_features(
     """Save feature matrix in desired format to disk."""
     assert (
         file_format in FILE_FORMATS
-    ), f"\nFile format must be one of {FILE_FORMATS}.\n"
+    ), f"\nFile format must be one of {FILE_FORMATS}.\nChange output format accordingly.\n"
     if not os.path.exists(out_path):
         print(
             "\nOutput directory did not exist. Creating directories to save features...\n"
         )
-        os.makedirs(out_path)
+        os.makedirs(out_path, exist_ok=True)
+    if file_format == "pt":
+        if not isinstance(features, torch.Tensor):
+            warnings.warn(
+                message=f"\nExpected features to be of type <torch.Tensor> but got {type(features)} instead.\nConverting features to type <torch.Tensor> now.\n",
+                category=UserWarning,
+                )
+            features = torch.from_numpy(features)
     # save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) > 2 and file_format == "txt":
         print("\n...Cannot save 4-way tensor in a txt format.")
@@ -138,7 +154,7 @@ def save_features(
 
 def merge_features(root: str, file_format: str) -> Array:
     if file_format == "hdf5":
-        with h5py.file(os.path.join(root, "features.h5"), "r") as f:
+        with h5py.file(os.path.join(root, "features.hdf5"), "r") as f:
             features = np.vstack([split[:] for split in f.values()])
     else:
         feature_splits = np.array(

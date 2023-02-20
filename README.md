@@ -69,8 +69,8 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
 - [timm](https://github.com/rwightman/pytorch-image-models)
 - `ssl` (Self-Supervised Learning Models)
-  - `simclr-rn50`, `mocov2-rn50`, `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `pirl-rn50` (from [vissl](https://github.com/facebookresearch/vissl))
-  - `barlowtwins-rn50`, `vicreg-rn50` (from [torch.hub](https://pytorch.org/hub/))
+  - `simclr-rn50`, `mocov2-rn50`, `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `pirl-rn50` (retrieved from [vissl](https://github.com/facebookresearch/vissl))
+  - `barlowtwins-rn50`, `vicreg-rn50`, `dino-vit{s/b}{8/16}`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`, `dino-rn50` (retrieved from [torch.hub](https://pytorch.org/hub/))
 - [OpenCLIP](https://github.com/mlfoundations/open_clip)
 - both original [CLIP](https://github.com/openai/CLIP) variants (`ViT-B/32` and `RN50`)
 - a few custom models (Alexnet, VGG-16, Resnet50, and Inception_v3) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118) rather than ImageNet  and one Alexnet pretrained on ImageNet and fine-tuned on [SalObjSub](https://cs-people.bu.edu/jmzhang/sos.html)
@@ -138,10 +138,10 @@ source = 'torchvision'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
-  model_name=model_name,
-  source=source,
-  device=device,
-  pretrained=True
+    model_name=model_name,
+    source=source,
+    device=device,
+    pretrained=True
 )
 ```
 
@@ -152,16 +152,16 @@ root='path/to/root/img/directory' # (e.g., './images/)
 batch_size = 32
 
 dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.get_backend(),
-  transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set input dimensionality to whatever is needed for your pretrained model
+    root=root,
+    out_path='path/to/features',
+    backend=extractor.get_backend(), # backend framework of model
+    transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set input dimensionality to whatever is required for your pretrained model
 )
 
 batches = DataLoader(
-  dataset=dataset,
-  batch_size=batch_size, 
-  backend=extractor.get_backend()
+    dataset=dataset,
+    batch_size=batch_size,
+    backend=extractor.get_backend() # backend framework of model
 )
 ```
 
@@ -171,9 +171,10 @@ Now all that is left is to extract the image features and store them to disk! He
 module_name = 'features.10'
 
 features = extractor.extract_features(
-  batches=batches,
-  module_name=module_name,
-  flatten_acts=True  # flatten 2D feature maps from convolutional layer
+    batches=batches,
+    module_name=module_name,
+    flatten_acts=True, # flatten 2D feature maps from convolutional layer
+    output_type="ndarray", # or "tensor"
 )
 
 save_features(features, out_path='path/to/features', file_format='npy')
