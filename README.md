@@ -6,6 +6,9 @@
     <a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/coverage.yml" rel="nofollow">
         <img src="https://codecov.io/gh/ViCCo-Group/thingsvision/branch/master/graph/badge.svg" alt="Code Coverage" />
     </a>
+    <a href="https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d" rel="nofollow">
+        <img src="https://img.shields.io/badge/maintenance-yes-brightgreen.svg" alt="Maintenance" />
+    </a>
     <a href="https://pypi.org/project/thingsvision/" rel="nofollow">
         <img src="https://img.shields.io/pypi/v/thingsvision" alt="PyPI" />
     </a>
@@ -22,8 +25,6 @@
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
     </a>
 </div>
-
-
 <br />
 
 <!-- Table of Contents -->
