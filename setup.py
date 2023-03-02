@@ -14,8 +14,8 @@ requirements = [
     "pandas==1.4.*",
     "tensorflow==2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64' ",
     "tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64' ",
-    "torch==1.12.*",
-    "torchvision==0.13.*",
+    "torch==1.13.*",
+    "torchvision==0.14.*",
     "open_clip_torch==2.0.*",
     "tqdm==4.64.0",
     "timm==0.6.*",
@@ -27,7 +27,9 @@ requirements = [
     "scikit-learn==1.1.*",
     "scipy==1.8.1",
     "h5py==3.7.0",
+    "keras-cv-attention-models",
     "CLIP",
+    "Harmonization",
     # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
 ]
 
@@ -52,5 +54,8 @@ setuptools.setup(
     ],
     entry_points={"console_scripts": ["thingsvision = thingsvision.thingsvision:main"]},
     python_requires=">=3.8",
-    dependency_links=["git+https://github.com/openai/CLIP.git"],
+    dependency_links=[
+        "git+https://github.com/openai/CLIP.git",
+        "git+https://github.com/serre-lab/Harmonization.git",
+    ],
 )
